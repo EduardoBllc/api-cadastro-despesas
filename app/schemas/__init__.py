@@ -15,6 +15,7 @@ from app.schemas.categoria_item import (
     CriarCategoriaItem,
     RespostaCategoriaItem,
 )
+from app.schemas.configuracao import AtualizarConfiguracao, RespostaConfiguracao
 from app.schemas.despesa import (
     AtualizarDespesa,
     CriarDespesa,
@@ -27,23 +28,31 @@ from app.schemas.estabelecimento import (
     CriarEstabelecimento,
     RespostaEstabelecimento,
 )
-from app.schemas.configuracao import AtualizarConfiguracao, RespostaConfiguracao
 from app.schemas.historico_preco_item import RespostaHistoricoPrecoItem
 from app.schemas.item import AtualizarItem, CriarItem, RespostaItem
-from app.schemas.item_despesa import AtualizarItemDespesa, CriarItemDespesa, RespostaItemDespesa
+from app.schemas.item_despesa import (
+    AtualizarItemDespesa,
+    CriarItemDespesa,
+    ItemDespesaParaAtualizar,
+    RespostaItemDespesa,
+)
 from app.schemas.tipo_estabelecimento import (
     AtualizarTipoEstabelecimento,
     CriarTipoEstabelecimento,
     RespostaTipoEstabelecimento,
 )
-from app.schemas.unidade_medida import AtualizarUnidadeMedida, CriarUnidadeMedida, RespostaUnidadeMedida
+from app.schemas.unidade_medida import (
+    AtualizarUnidadeMedida,
+    CriarUnidadeMedida,
+    RespostaUnidadeMedida,
+)
 
 __all__ = [
     "AtualizarAbastecimento",
     "AtualizarCarro",
-    "AtualizarConfiguracao",
     "AtualizarCategoriaDespesa",
     "AtualizarCategoriaItem",
+    "AtualizarConfiguracao",
     "AtualizarDespesa",
     "AtualizarEstabelecimento",
     "AtualizarItem",
@@ -60,11 +69,12 @@ __all__ = [
     "CriarItemDespesa",
     "CriarTipoEstabelecimento",
     "CriarUnidadeMedida",
+    "ItemDespesaParaAtualizar",
     "RespostaAbastecimento",
     "RespostaCarro",
-    "RespostaConfiguracao",
     "RespostaCategoriaDespesa",
     "RespostaCategoriaItem",
+    "RespostaConfiguracao",
     "RespostaDespesaDetalhe",
     "RespostaDespesaLista",
     "RespostaEstabelecimento",

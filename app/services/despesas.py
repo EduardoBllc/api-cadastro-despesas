@@ -7,8 +7,7 @@ from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
-from app.models import Abastecimento, Carro, Despesa, Item, ItemDespesa, Estabelecimento
-from app.services.itens_despesa import _registrar_historico
+from app.models import Abastecimento, Carro, Despesa, Estabelecimento, Item, ItemDespesa
 from app.schemas import (
     AtualizarAbastecimento,
     AtualizarDespesa,
@@ -19,6 +18,7 @@ from app.schemas import (
     RespostaPaginadaDespesa,
 )
 from app.services.abastecimentos import build_resposta as build_resposta_abastecimento
+from app.services.itens_despesa import _registrar_historico
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -96,10 +96,36 @@ async def atualizar(
 ) -> RespostaDespesaDetalhe:
     despesa = await get_or_404(session, despesa_id)
 
-    for field, value in body.model_dump(exclude_unset=True).items():
+    for field, value in body.model_dump(exclude_unset=True, exclude={"itens"}).items():
         setattr(despesa, field, value)
 
     await session.flush()
+
+    if body.itens is not None:
+        ids_para_manter = {i.id for i in body.itens if i.id is not None}
+        for item in list(despesa.itens):
+            if item.id not in ids_para_manter:
+                await session.delete(item)
+        await session.flush()
+
+        for item_data in body.itens:
+            if item_data.id is not None:
+                item_despesa = next((i for i in despesa.itens if i.id == item_data.id), None)
+                if item_despesa is None:
+                    raise HTTPException(
+                        status_code=404, detail=f"Item {item_data.id} não encontrado nesta despesa"
+                    )
+                for field, value in item_data.model_dump(exclude={"id"}).items():
+                    setattr(item_despesa, field, value)
+            else:
+                item_despesa = ItemDespesa(
+                    despesa_id=despesa.id, **item_data.model_dump(exclude={"id"})
+                )
+                session.add(item_despesa)
+
+            await session.flush()
+            await _registrar_historico(session, item_despesa, despesa)
+
     result = await session.execute(
         select(Despesa)
         .where(Despesa.id == despesa_id)

@@ -11,14 +11,21 @@ from app.schemas.item import RespostaItem  # noqa: TC001
 
 class CriarItemDespesa(BaseModel):
     item_id: uuid.UUID
-    quantidade: Decimal = Field(gt=0, decimal_places=2, max_digits=9)
+    quantidade: Decimal = Field(gt=0, decimal_places=3, max_digits=10)
     valor_unitario: Decimal = Field(gt=0, decimal_places=2, max_digits=13)
 
 
 class AtualizarItemDespesa(BaseModel):
     item_id: uuid.UUID | None = None
-    quantidade: Decimal | None = Field(None, gt=0, decimal_places=2, max_digits=9)
+    quantidade: Decimal | None = Field(None, gt=0, decimal_places=3, max_digits=10)
     valor_unitario: Decimal | None = Field(None, gt=0, decimal_places=2, max_digits=13)
+
+
+class ItemDespesaParaAtualizar(BaseModel):
+    id: uuid.UUID | None = None
+    item_id: uuid.UUID
+    quantidade: Decimal = Field(gt=0, decimal_places=3, max_digits=10)
+    valor_unitario: Decimal = Field(gt=0, decimal_places=2, max_digits=13)
 
 
 class RespostaItemDespesa(BaseModel):
