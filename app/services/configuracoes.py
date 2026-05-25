@@ -25,7 +25,7 @@ async def atualizar(
     conf = result.scalar_one_or_none()
     if conf is None:
         raise HTTPException(status_code=404, detail="Configuração não encontrada")
-    conf.valor = body.valor
+    conf.valor = str(body.valor) if body.valor is not None else None
     await session.flush()
     await session.refresh(conf)
     return conf
