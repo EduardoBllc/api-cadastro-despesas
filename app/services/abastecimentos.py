@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid  # noqa: TC003
-from decimal import Decimal
+from decimal import ROUND_HALF_DOWN, Decimal
 from typing import TYPE_CHECKING
 
 from sqlalchemy import func, select
@@ -37,7 +37,9 @@ async def build_resposta(
     km_por_litro: Decimal | None = None
     if km_ant is not None:
         km_rodados = abastecimento.quilometragem - km_ant
-        km_por_litro = Decimal(km_rodados) / abastecimento.litros
+        km_por_litro = (Decimal(km_rodados) / abastecimento.litros).quantize(
+            Decimal("0.00"), ROUND_HALF_DOWN
+        )
     return RespostaAbastecimento(
         id=abastecimento.id,
         despesa_id=abastecimento.despesa_id,
