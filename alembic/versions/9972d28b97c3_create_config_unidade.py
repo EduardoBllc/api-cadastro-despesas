@@ -1,8 +1,8 @@
-"""create_configs_abastecimento
+"""create_config_unidade
 
-Revision ID: 0d58374ff365
-Revises: c9d8e7f6a5b4
-Create Date: 2026-05-15 23:05:13.190939
+Revision ID: 9972d28b97c3
+Revises: 0d58374ff365
+Create Date: 2026-05-18 23:25:07.864498
 
 """
 
@@ -14,25 +14,33 @@ from collections.abc import Sequence  # noqa: TC003
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "0d58374ff365"
-down_revision: str | Sequence[str] | None = "c9d8e7f6a5b4"
+revision: str = "9972d28b97c3"
+down_revision: str | Sequence[str] | None = "0d58374ff365"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
-CONFGIGURACOES_ABASTECIMENTO = [
+CONFIGURACOES_UNITARIO = [
     {
-        "chave": "categoria_abastecimento_id",
+        "chave": "medida_unitario_id",
         "tipo": "uuid",
     },
     {
-        "chave": "tipo_estabelecimento_posto_id",
-        "tipo": "uuid",
+        "chave": "valor_padrao_unitario",
+        "tipo": "int",
+    },
+    {
+        "chave": "autopreenche_unitario_quantidade",
+        "tipo": "bool",
+    },
+    {
+        "chave": "autopreenche_unitario_item",
+        "tipo": "bool",
     },
 ]
 
 
 def upgrade() -> None:
-    for configuracao in CONFGIGURACOES_ABASTECIMENTO:
+    for configuracao in CONFIGURACOES_UNITARIO:
         op.execute(
             f"""
             INSERT INTO
@@ -44,7 +52,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    for configuracao in CONFGIGURACOES_ABASTECIMENTO:
+    for configuracao in CONFIGURACOES_UNITARIO:
         op.execute(
             f"""
             DELETE FROM
