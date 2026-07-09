@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import PostgresDsn
+from pydantic import PostgresDsn, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,10 +11,25 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    database_url: PostgresDsn = "postgresql+asyncpg://postgres:postgres@localhost:5432/despesas"
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    postgres_user: str = "postgres"
+    postgres_password: str = "postgres"
+    postgres_db: str = "despesas"
+
+    database_url: PostgresDsn | None = None
     db_pool_size: int = 10
     db_max_overflow: int = 5
     db_pool_timeout: int = 30
+
+    @model_validator(mode="after")
+    def build_database_url(self) -> "Settings":
+        if self.database_url is None:
+            self.database_url = PostgresDsn(
+                f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}"
+                f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+            )
+        return self
 
 
 @lru_cache
