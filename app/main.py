@@ -20,6 +20,7 @@ from app.routers import (
     itens,
     itens_despesa,
     migrations,
+    relatorios,
     status,
     sugestoes,
     tipos_estabelecimento,
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
     app.include_router(itens_despesa.router)
     app.include_router(carros.router)
     app.include_router(abastecimentos.router)
+    app.include_router(relatorios.router)
 
     setup_exception_handlers(app)
 

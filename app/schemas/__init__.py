@@ -41,6 +41,12 @@ from app.schemas.tipo_estabelecimento import (
     CriarTipoEstabelecimento,
     RespostaTipoEstabelecimento,
 )
+from app.schemas.relatorio import (
+    AbastecimentoEficiencia,
+    AbastecimentoMensal,
+    GastoCategoria,
+    GastoMensal,
+)
 from app.schemas.unidade_medida import (
     AtualizarUnidadeMedida,
     CriarUnidadeMedida,
@@ -48,6 +54,10 @@ from app.schemas.unidade_medida import (
 )
 
 __all__ = [
+    "AbastecimentoEficiencia",
+    "AbastecimentoMensal",
+    "GastoCategoria",
+    "GastoMensal",
     "AtualizarAbastecimento",
     "AtualizarCarro",
     "AtualizarCategoriaDespesa",
