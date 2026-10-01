@@ -16,6 +16,12 @@ class CriarItemDespesa(BaseModel):
     valor_desconto: Decimal = Field(default=Decimal("0.0"), ge=0, decimal_places=2, max_digits=13)
 
 
+class CriarItemDespesaNfce(CriarItemDespesa):
+    """Item criado junto com a despesa; pode trazer o código do produto na NFC-e."""
+
+    codigo_produto_nfce: str | None = Field(None, max_length=60)
+
+
 class AtualizarItemDespesa(BaseModel):
     item_id: uuid.UUID | None = None
     quantidade: Decimal | None = Field(None, gt=0, decimal_places=3, max_digits=10)

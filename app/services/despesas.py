@@ -17,6 +17,7 @@ from app.schemas import (
     RespostaDespesaDetalhe,
     RespostaPaginadaDespesa,
 )
+from app.services import nfce as nfce_service
 from app.services.abastecimentos import build_resposta as build_resposta_abastecimento
 from app.services.itens_despesa import _registrar_historico
 
@@ -67,15 +68,27 @@ async def criar(session: AsyncSession, body: CriarDespesa) -> RespostaDespesaDet
         if carro is None:
             raise HTTPException(status_code=404, detail="Carro não encontrado")
 
-    despesa = Despesa(**body.model_dump(exclude={"abastecimento", "itens"}))
+    if body.nfce is not None:
+        await nfce_service.garantir_nao_importada(session, body.nfce.chave)
+
+    despesa = Despesa(**body.model_dump(exclude={"abastecimento", "itens", "nfce"}))
+    if body.nfce is not None:
+        despesa.chave_nfce = body.nfce.chave
     session.add(despesa)
     await session.flush()
 
     for item_data in body.itens:
-        item_despesa = ItemDespesa(despesa_id=despesa.id, **item_data.model_dump())
+        item_despesa = ItemDespesa(
+            despesa_id=despesa.id, **item_data.model_dump(exclude={"codigo_produto_nfce"})
+        )
         session.add(item_despesa)
         await session.flush()
         await _registrar_historico(session, item_despesa, despesa)
+
+    if body.nfce is not None:
+        await nfce_service.registrar_origem(
+            session, body.nfce, despesa.estabelecimento_id, body.itens
+        )
 
     if body.abastecimento is not None:
         ab_data = body.abastecimento.model_dump()

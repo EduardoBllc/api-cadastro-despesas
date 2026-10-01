@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import re
+import uuid
 from enum import StrEnum
 from typing import TYPE_CHECKING
 from urllib.parse import parse_qs, urlsplit
 
 import httpx
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.models import Despesa, Estabelecimento, VinculoProdutoNfce
 from app.schemas.nfce import ItemRascunhoNfce, RascunhoNfce
@@ -17,6 +19,9 @@ from app.services.nfce_parser import NotaInvalidaError, parse, ratear_desconto
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+
+    from app.schemas.item_despesa import CriarItemDespesaNfce
+    from app.schemas.nfce import OrigemNfce
 
 URL_CONSULTA_SEFAZ_RS = "https://dfe-portal.svrs.rs.gov.br/Dfe/QrCodeNFce"
 TIMEOUT_SEFAZ_SEGUNDOS = 10.0
@@ -115,4 +120,45 @@ async def importar(session: AsyncSession, url: str) -> RascunhoNfce:
             )
             for item, desconto in zip(nota.itens, descontos, strict=True)
         ],
+    )
+
+
+async def registrar_origem(
+    session: AsyncSession,
+    origem: OrigemNfce,
+    estabelecimento_id: uuid.UUID,
+    itens: list[CriarItemDespesaNfce],
+) -> None:
+    """Grava CNPJ no estabelecimento escolhido e os vínculos código → item (última escolha vence)."""
+    await session.execute(
+        update(Estabelecimento)
+        .where(Estabelecimento.cnpj == origem.cnpj, Estabelecimento.id != estabelecimento_id)
+        .values(cnpj=None)
+    )
+    await session.execute(
+        update(Estabelecimento)
+        .where(Estabelecimento.id == estabelecimento_id)
+        .values(cnpj=origem.cnpj)
+    )
+
+    # dict deduplica códigos repetidos na nota: o upsert não pode tocar a mesma linha duas vezes
+    vinculos = {i.codigo_produto_nfce: i.item_id for i in itens if i.codigo_produto_nfce}
+    if not vinculos:
+        return
+    insercao = pg_insert(VinculoProdutoNfce).values(
+        [
+            {
+                "id": uuid.uuid4(),
+                "cnpj_raiz": origem.cnpj[:TAMANHO_CNPJ_RAIZ],
+                "codigo_produto": codigo,
+                "item_id": item_id,
+            }
+            for codigo, item_id in vinculos.items()
+        ]
+    )
+    await session.execute(
+        insercao.on_conflict_do_update(
+            index_elements=[VinculoProdutoNfce.cnpj_raiz, VinculoProdutoNfce.codigo_produto],
+            set_={"item_id": insercao.excluded.item_id, "data_alteracao": func.now()},
+        )
     )

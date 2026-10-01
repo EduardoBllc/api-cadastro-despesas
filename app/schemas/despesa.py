@@ -9,10 +9,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.abastecimento import CriarAbastecimento, RespostaAbastecimento  # noqa: TC001
 from app.schemas.estabelecimento import RespostaEstabelecimento  # noqa: TC001
 from app.schemas.item_despesa import (  # noqa: TC001
-    CriarItemDespesa,
+    CriarItemDespesaNfce,
     ItemDespesaParaAtualizar,
     RespostaItemDespesa,
 )
+from app.schemas.nfce import OrigemNfce  # noqa: TC001
 
 
 class CriarDespesa(BaseModel):
@@ -21,8 +22,9 @@ class CriarDespesa(BaseModel):
     categoria_despesa_id: uuid.UUID
     valor_total: Decimal = Field(gt=0, decimal_places=2, max_digits=13)
     observacao: str | None = None
-    itens: list[CriarItemDespesa] = Field(default_factory=list)
+    itens: list[CriarItemDespesaNfce] = Field(default_factory=list)
     abastecimento: CriarAbastecimento | None = None
+    nfce: OrigemNfce | None = None
 
 
 class AtualizarDespesa(BaseModel):
