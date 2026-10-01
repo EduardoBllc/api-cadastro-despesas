@@ -22,8 +22,12 @@ class ItemDespesa(BaseModel):
     item_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("itens.id", ondelete="RESTRICT"))
     quantidade: Mapped[Decimal] = mapped_column(Numeric(10, 3))
     valor_unitario: Mapped[Decimal] = mapped_column(Numeric(13, 2))
+    valor_desconto: Mapped[Decimal] = mapped_column(
+        Numeric(13, 2), default=0, server_default="0"
+    )
     valor_total: Mapped[Decimal] = mapped_column(
-        Numeric(13, 2), Computed("quantidade * valor_unitario", persisted=True)
+        Numeric(13, 2),
+        Computed("(valor_unitario - COALESCE(valor_desconto, 0)) * quantidade", persisted=True),
     )
 
     despesa: Mapped[Despesa] = relationship(back_populates="itens")

@@ -13,12 +13,14 @@ class CriarItemDespesa(BaseModel):
     item_id: uuid.UUID
     quantidade: Decimal = Field(gt=0, decimal_places=3, max_digits=10)
     valor_unitario: Decimal = Field(gt=0, decimal_places=2, max_digits=13)
+    valor_desconto: Decimal = Field(default=Decimal("0.0"), ge=0, decimal_places=2, max_digits=13)
 
 
 class AtualizarItemDespesa(BaseModel):
     item_id: uuid.UUID | None = None
     quantidade: Decimal | None = Field(None, gt=0, decimal_places=3, max_digits=10)
     valor_unitario: Decimal | None = Field(None, gt=0, decimal_places=2, max_digits=13)
+    valor_desconto: Decimal | None = Field(None, ge=0, decimal_places=2, max_digits=13)
 
 
 class ItemDespesaParaAtualizar(BaseModel):
@@ -26,6 +28,7 @@ class ItemDespesaParaAtualizar(BaseModel):
     item_id: uuid.UUID
     quantidade: Decimal = Field(gt=0, decimal_places=3, max_digits=10)
     valor_unitario: Decimal = Field(gt=0, decimal_places=2, max_digits=13)
+    valor_desconto: Decimal = Field(default=Decimal("0.0"), ge=0, decimal_places=2, max_digits=13)
 
 
 class RespostaItemDespesa(BaseModel):
@@ -35,6 +38,7 @@ class RespostaItemDespesa(BaseModel):
     item: RespostaItem | None
     quantidade: Decimal
     valor_unitario: Decimal
+    valor_desconto: Decimal
     valor_total: Decimal
     data_cadastro: datetime
     data_alteracao: datetime
