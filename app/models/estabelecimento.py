@@ -20,6 +20,7 @@ class Estabelecimento(BaseModel):
     tipo_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("tipos_estabelecimento.id", ondelete="RESTRICT")
     )
+    cnpj: Mapped[str | None] = mapped_column(String(14), unique=True)
 
     tipo: Mapped[TipoEstabelecimento] = relationship()
     despesas: Mapped[list[Despesa]] = relationship(back_populates="estabelecimento")

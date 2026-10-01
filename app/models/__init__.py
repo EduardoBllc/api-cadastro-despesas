@@ -11,6 +11,7 @@ from app.models.item import Item
 from app.models.item_despesa import ItemDespesa
 from app.models.tipo_estabelecimento import TipoEstabelecimento
 from app.models.unidade_medida import UnidadeMedida
+from app.models.vinculo_produto_nfce import VinculoProdutoNfce
 
 __all__ = [
     "Abastecimento",
@@ -27,4 +28,5 @@ __all__ = [
     "ItemDespesa",
     "TipoEstabelecimento",
     "UnidadeMedida",
+    "VinculoProdutoNfce",
 ]

@@ -5,7 +5,7 @@ from datetime import date  # noqa: TC003
 from decimal import Decimal  # noqa: TC003
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Date, ForeignKey, Numeric, String, Text, func
+from sqlalchemy import CHAR, Date, ForeignKey, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel
@@ -29,6 +29,7 @@ class Despesa(BaseModel):
     )
     valor_total: Mapped[Decimal] = mapped_column(Numeric(13, 2))
     observacao: Mapped[str | None] = mapped_column(Text)
+    chave_nfce: Mapped[str | None] = mapped_column(CHAR(44), unique=True)
 
     estabelecimento: Mapped[Estabelecimento] = relationship(back_populates="despesas")
     categoria_despesa: Mapped[CategoriaDespesa] = relationship(back_populates="despesas")
